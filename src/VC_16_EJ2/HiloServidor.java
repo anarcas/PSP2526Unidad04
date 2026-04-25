@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package VC_16;
+package VC_16_EJ2;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,7 +15,7 @@ import java.util.logging.*;
  *
  * @author anaranjo
  */
-    public class HiloServidor implements Runnable {
+public class HiloServidor implements Runnable {
 
     private final Socket socket;
     private final Logger logger;
@@ -27,12 +27,11 @@ import java.util.logging.*;
 
     @Override
     public void run() {
-        
-        try (
-            Socket s = this.socket;
-            BufferedReader entrada = new BufferedReader(new InputStreamReader(s.getInputStream()));
-            PrintWriter salida = new PrintWriter(s.getOutputStream(), true)
-        ) {
+
+        try (Socket s = this.socket; 
+             BufferedReader entrada = new BufferedReader(new InputStreamReader(s.getInputStream())); 
+             PrintWriter salida = new PrintWriter(s.getOutputStream(), true)) {
+
             String peticion = entrada.readLine();
 
             if (peticion != null && (peticion.startsWith("GET") || peticion.startsWith("POST"))) {
@@ -69,8 +68,14 @@ import java.util.logging.*;
         } catch (IOException e) {
             e.printStackTrace(); // Muestra errores en la consola.
         }
-}
-
-    
-
     }
+
+    private static String construirRespuesta(int codigo, String contenido) {
+        return (codigo == 200 ? "HTTP/1.1 200 OK" : "HTTP/1.1 404 Not Found") + "\r\n" // Línea inicial
+                + "Content-Type: text/html; charset=UTF-8" + "\r\n" // Metadatos
+                + "Content-Length: " + contenido.getBytes(java.nio.charset.StandardCharsets.UTF_8).length + "\r\n" // getBytes para longitud exacta
+                + "\r\n" // Línea vacía
+                + contenido;
+    }
+
+}

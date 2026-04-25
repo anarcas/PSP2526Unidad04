@@ -2,9 +2,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
  */
-package VC_16;
+package VC_16_EJ2;
 
 import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.logging.*;
@@ -13,19 +15,19 @@ import java.util.logging.*;
  *
  * @author anaranjo
  */
-public class Log1 {
-
-    private static final Logger logger = Logger.getLogger("MiLog");
+public class ServidorLog {
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) throws IOException, InterruptedException {
         // TODO code application logic here
+        
         ////////////////////////////////////////////
         //////////////CONFIGURACION LOGGER//////////
         ////////////////////////////////////////////
 
+        Logger logger = Logger.getLogger("MiLog");
         // Crear y configurar el manejador de archivos
         FileHandler fh = new FileHandler("MiPrimerLog.log", true);
         
@@ -47,20 +49,16 @@ public class Log1 {
         // Establecer el nivel de registro (ALL para registrar todo)
         logger.setLevel(Level.ALL);
 
-        ////////////////////////////////////////////
-        ////////////////USO DE LOGGER///////////////
-        ////////////////////////////////////////////
-        //Mostrar mensajes.
-        logger.log(Level.INFO, "Aplicación iniciada");
+        // Crea un servidor que escucha en el puerto 12349.
+        ServerSocket serverSocket = new ServerSocket(12349);
+        System.out.println("Servidor HTTP iniciado en el puerto 12349");
+        System.out.println("Visita http://localhost:12349");
 
-        try {
-            int resultado = 10 / 0;
-        } catch (ArithmeticException e) {
-            // Archivo temporal .lck
-            //Thread.sleep(10000);
-            logger.log(Level.SEVERE, "Error al dividir por cero: " + e.getMessage());
-        } finally {
-            fh.close(); // Cerrar el FileHandler evita que quede el archivo .lck
+        // Bucle infinito para aceptar conexiones de clientes.
+        while (true) {
+            Socket cliente = serverSocket.accept(); // Espera y acepta una conexión entrante.
+            Thread hiloServidor = new Thread(new HiloServidor(cliente, logger)); // Crea un nuevo hilo para manejar al cliente.
+            hiloServidor.start(); // Inicia el hilo.
         }
     }
 

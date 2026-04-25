@@ -2,16 +2,19 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
  */
-package VC_16;
+package VC_16_EJ1;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.logging.*;
+
 /**
  *
  * @author anaranjo
  */
-public class Log {
-    
+public class Log1 {
+
     private static final Logger logger = Logger.getLogger("MiLog");
 
     /**
@@ -25,10 +28,15 @@ public class Log {
 
         // Crear y configurar el manejador de archivos
         FileHandler fh = new FileHandler("MiPrimerLog.log", true);
-        SimpleFormatter formatter = new SimpleFormatter(); //Formato texto o formato XML
-        //
+        
         //Aquí es donde indicamos el formato.
-        fh.setFormatter(formatter);
+        fh.setFormatter(new Formatter() {
+            @Override
+            public String format(LogRecord record) {
+                String fechaHora = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                return String.format("(%s) %s%n", fechaHora, record.getMessage());
+            }
+        });
 
         // Asignar el manejador al logger
         logger.addHandler(fh);
@@ -42,7 +50,6 @@ public class Log {
         ////////////////////////////////////////////
         ////////////////USO DE LOGGER///////////////
         ////////////////////////////////////////////
-
         //Mostrar mensajes.
         logger.log(Level.INFO, "Aplicación iniciada");
 
@@ -56,5 +63,5 @@ public class Log {
             fh.close(); // Cerrar el FileHandler evita que quede el archivo .lck
         }
     }
-    
+
 }

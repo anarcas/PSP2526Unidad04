@@ -2,8 +2,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
  */
-package VC_16;
+package VC_16_EJ3;
 
+import VC_16_EJ2.*;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -57,7 +58,8 @@ public class ServidorLog {
         // Bucle infinito para aceptar conexiones de clientes.
         while (true) {
             Socket cliente = serverSocket.accept(); // Espera y acepta una conexión entrante.
-            Thread hiloServidor = new Thread(new HiloServidor(cliente, logger)); // Crea un nuevo hilo para manejar al cliente.
+            // No es necesario pasar el logger como argumento
+            Thread hiloServidor=new Thread(new HiloServidor(cliente));
             hiloServidor.start(); // Inicia el hilo.
         }
     }
