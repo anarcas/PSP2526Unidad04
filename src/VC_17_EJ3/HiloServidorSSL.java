@@ -9,7 +9,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.logging.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.net.ssl.SSLSocket;
 
 /**
@@ -20,7 +21,7 @@ public class HiloServidorSSL implements Runnable {
 
     private final SSLSocket socket;
     // Si no se pasa el logger como argumento se debe llamar aquí al método getLogger() para instanciar el logger
-    private final Logger logger=Logger.getLogger("MiLog");
+    private final Logger logger = Logger.getLogger("MiLog");
 
     // No es necesario parar logger como argumento
     public HiloServidorSSL(SSLSocket cliente) {
@@ -30,9 +31,7 @@ public class HiloServidorSSL implements Runnable {
     @Override
     public void run() {
 
-        try (Socket s = this.socket; 
-             BufferedReader entrada = new BufferedReader(new InputStreamReader(s.getInputStream())); 
-             PrintWriter salida = new PrintWriter(s.getOutputStream(), true)) {
+        try (Socket s = this.socket; BufferedReader entrada = new BufferedReader(new InputStreamReader(s.getInputStream())); PrintWriter salida = new PrintWriter(s.getOutputStream(), true)) {
 
             String peticion = entrada.readLine();
 
@@ -67,7 +66,7 @@ public class HiloServidorSSL implements Runnable {
                         System.out.println("Divisor: " + divisor);
                         double resultado = 10 / Double.parseDouble(divisor);
                         System.out.println("Resultado: " + resultado);
-                        respuesta = construirRespuesta(200, Paginas.html_division(String.format("%.2f",resultado)));
+                        respuesta = construirRespuesta(200, Paginas.html_division(String.format("%.2f", resultado)));
                     } catch (ArithmeticException e) {
                         logger.log(Level.SEVERE, "Error al dividir por cero: " + e.getMessage());
                         respuesta = construirRespuesta(400, Paginas.html_error("400", "Error: División por cero"));
@@ -82,7 +81,7 @@ public class HiloServidorSSL implements Runnable {
                 salida.println(respuesta); // Envía la respuesta al cliente.
             }
         } catch (IOException e) {
-            e.printStackTrace(); // Muestra errores en la consola.
+            logger.severe("Error de E/S con el cliente: " + e.getMessage());
         }
     }
 

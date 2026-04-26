@@ -36,11 +36,12 @@ import java.util.logging.Logger;
 public class ServidorSSL {
 
     private static final Logger logger = configurarLogger();
+    private static final String KEYSTORE_PASSWORD = "123456";
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         // TODO code application logic here
 
         try {
@@ -79,12 +80,12 @@ public class ServidorSSL {
             KeyStore keyStore = KeyStore.getInstance("JKS");
             
             try (FileInputStream keyFile = new FileInputStream("AlmacenSSL")) {
-                keyStore.load(keyFile, "123456".toCharArray());
+                keyStore.load(keyFile, KEYSTORE_PASSWORD.toCharArray());
             }
 
             // 2. KEY MANAGER
             KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
-            kmf.init(keyStore, "123456".toCharArray());
+            kmf.init(keyStore, KEYSTORE_PASSWORD.toCharArray());
 
             // 3. SSL CONTEXT
             SSLContext sslContext = SSLContext.getInstance("TLS");

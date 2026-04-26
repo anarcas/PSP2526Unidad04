@@ -4,8 +4,6 @@
  */
 package VC_17_EJ3;
 
-import VC_16_EJ3.*;
-
 /**
  *
  * @author anaranjo
