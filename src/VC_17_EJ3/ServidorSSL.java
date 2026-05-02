@@ -4,6 +4,7 @@
  */
 package VC_17_EJ3;
 
+import VC_18_EJ3.HiloServidorSSLCookies;
 import java.io.FileInputStream;
 import java.io.IOException;
 
@@ -59,7 +60,7 @@ public class ServidorSSL {
                     SSLSocket socketSsl = (SSLSocket) socketServidorSsl.accept();
                     System.out.println("Cliente conectado");
 
-                    Thread hiloServidor = new Thread(new HiloServidorSSL(socketSsl)); // Crea un nuevo hilo para manejar al cliente
+                    Thread hiloServidor = new Thread(new HiloServidorSSLCookies(socketSsl)); // Crea un nuevo hilo para manejar al cliente
                     hiloServidor.start(); // Inicia el hilo
 
                 } catch (IOException e) {

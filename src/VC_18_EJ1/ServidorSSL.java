@@ -2,28 +2,33 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
  */
-package VC_17_EJ2;
+package VC_18_EJ1;
 
 import VC_18_EJ3.HiloServidorSSLCookies;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.security.KeyManagementException;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
 
-import java.util.logging.*;
+import java.util.logging.FileHandler;
+import java.util.logging.Formatter;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
 /**
  *
@@ -32,39 +37,19 @@ import java.util.logging.*;
 public class ServidorSSL {
 
     private static final Logger logger = configurarLogger();
+    private static final String KEYSTORE_PASSWORD = "123456";
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         // TODO code application logic here
 
         try {
-            // 1.- Cargar el almacén de claves (keystore)
-            KeyStore keyStore = KeyStore.getInstance("JKS");
+            SSLServerSocket socketServidorSsl = crearServidorSSL();
 
-            try (FileInputStream keyFile = new FileInputStream("AlmacenSSL")) {
-                keyStore.load(keyFile, "123456".toCharArray());
-            } catch (IOException e) {
-                logger.severe("Error leyendo el archivo de claves: " + e.getMessage());
-                throw e;
-            }
-
-            // 2.- Inicializar el gestor de claves con el keystore (key manager)
-            KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance("SunX509");
-            keyManagerFactory.init(keyStore, "123456".toCharArray()); // Usa la misma contraseña
-
-            // 3.- Inicializar el contexto SSL con el gestor de claves
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(keyManagerFactory.getKeyManagers(), null, null);
-
-            // 4.- Declara objeto tipo Factory para crear socket SSL servidor (socket servidor)
-            SSLServerSocketFactory factory = sslContext.getServerSocketFactory();
-            // Crea un socket servidor seguro
-            SSLServerSocket socketServidorSsl = (SSLServerSocket) factory.createServerSocket(12349);
-            
             logger.info("Servidor SSL escuchando en el puerto " + 12349);
-            
+
             System.out.println("Servidor SSL escuchando en el puerto " + 12349);
             System.out.println("Visita https://localhost:12349");
 
@@ -83,19 +68,46 @@ public class ServidorSSL {
                 }
 
             }
+
+        } catch (RuntimeException e) {
+            logger.severe("No se pudo iniciar el servidor SSL: " + e.getMessage());
+        }
+    }
+
+    private static SSLServerSocket crearServidorSSL() {
+
+        try {
+            // 1. KEYSTORE
+            KeyStore keyStore = KeyStore.getInstance("JKS");
             
+            try (FileInputStream keyFile = new FileInputStream("AlmacenSSL")) {
+                keyStore.load(keyFile, KEYSTORE_PASSWORD.toCharArray());
+            }
+
+            // 2. KEY MANAGER
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+            kmf.init(keyStore, KEYSTORE_PASSWORD.toCharArray());
+
+            // 3. SSL CONTEXT
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(kmf.getKeyManagers(), null, null);
+
+            // 4. SOCKET SERVER
+            SSLServerSocketFactory factory = sslContext.getServerSocketFactory();
+            return (SSLServerSocket) factory.createServerSocket(12349);
+
         } catch (KeyStoreException e) {
-            logger.severe("Error con el tipo de KeyStore");
+            throw new RuntimeException("Error con el KeyStore (formato o tipo incorrecto)", e);
         } catch (NoSuchAlgorithmException e) {
-            logger.severe("Algoritmo no soportado");
+            throw new RuntimeException("Algoritmo SSL no soportado", e);
         } catch (CertificateException e) {
-            logger.severe("Error con el certificado");
+            throw new RuntimeException("Error en el certificado del almacén", e);
         } catch (UnrecoverableKeyException e) {
-            logger.severe("No se puede acceder a la clave");
+            throw new RuntimeException("No se puede acceder a la clave privada", e);
         } catch (KeyManagementException e) {
-            logger.severe("Error inicializando SSL");
+            throw new RuntimeException("Error inicializando el contexto SSL", e);
         } catch (IOException e) {
-            logger.severe("Error de entrada/salida: " + e.getMessage());
+            throw new RuntimeException("Error de entrada/salida al cargar el keystore", e);
         }
     }
 
